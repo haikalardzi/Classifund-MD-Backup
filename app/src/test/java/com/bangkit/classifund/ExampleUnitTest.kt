@@ -1,4 +1,4 @@
-package com.example.classifund
+package com.bangkit.classifund
 
 import org.junit.Test
 

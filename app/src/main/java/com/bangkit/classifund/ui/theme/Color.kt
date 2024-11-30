@@ -1,4 +1,4 @@
-package com.example.classifund.ui.theme
+package com.bangkit.classifund.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
