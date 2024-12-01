@@ -7,11 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bangkit.classifund.ui.screens.HomeScreen
 import com.bangkit.classifund.ui.screens.SettingsScreen
+import com.bangkit.classifund.ui.screens.TransactionScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen() }
         composable("settings") { SettingsScreen(navController) }
+        composable("add_transaction") { TransactionScreen() }
     }
 }

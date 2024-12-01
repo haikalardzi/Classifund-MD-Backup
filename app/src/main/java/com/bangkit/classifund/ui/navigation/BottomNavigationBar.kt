@@ -17,6 +17,12 @@ fun BottomNavigationBar(navController: NavHostController) {
         )
         NavigationBarItem(
             selected = false,
+            onClick = { navController.navigate("add_transaction") },
+            icon = { Text("+") },
+            label = { Text("Add") }
+        )
+        NavigationBarItem(
+            selected = false,
             onClick = { navController.navigate("settings") },
             icon = { Text("⚙️") },
             label = { Text("Settings") }
