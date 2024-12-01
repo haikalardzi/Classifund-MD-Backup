@@ -5,14 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import com.bangkit.classifund.tempActivity.LoginActivity
+import com.bangkit.classifund.ui.login.LoginActivity
 import com.bangkit.classifund.ui.components.MainApp
 import com.bangkit.classifund.ui.theme.ClassifundTheme
 import com.google.firebase.auth.FirebaseAuth

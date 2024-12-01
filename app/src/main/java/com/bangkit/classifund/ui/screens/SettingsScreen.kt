@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.bangkit.classifund.tempActivity.LoginActivity
+import com.bangkit.classifund.ui.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
