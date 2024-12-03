@@ -1,7 +1,11 @@
 package com.bangkit.classifund.ui.transaction
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -52,7 +56,44 @@ class AddTransactionViewModel : ViewModel() {
 
     fun saveTransaction() {
         viewModelScope.launch {
-            // Save the transaction to the database or API
+            val db = Firebase.firestore
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (userId.isNullOrEmpty()) {
+                Log.e("PRINT", "No authenticated user found")
+                return@launch
+            }
+
+            // Build the transaction data
+            val transactionData = hashMapOf(
+                "transactionType" to _transactionType.value,
+                "date" to _selectedDate.value,
+                "category" to _category.value,
+                "wallet" to _wallet.value,
+                "description" to _description.value,
+                "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
+            )
+            Log.d("PRINT", _transactionType.value)
+            Log.d("PRINT", _selectedDate.value)
+            Log.d("PRINT", _category.value)
+            Log.d("PRINT", _wallet.value)
+            Log.d("PRINT", _description.value)
+
+            try {
+                // Save the transaction under the user's collection
+                db.collection("Users")
+                    .document(userId)
+                    .collection("transactions")
+                    .add(transactionData)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d("PRINT", "Transaction added with ID: ${documentReference.id}")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("PRINT", "Error adding transaction", e)
+                    }
+            } catch (e: Exception) {
+                Log.e("PRINT", "Unexpected error during Firestore operation", e)
+            }
         }
     }
 }

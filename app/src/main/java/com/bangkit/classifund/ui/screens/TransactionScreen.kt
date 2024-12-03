@@ -6,12 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -152,47 +154,53 @@ fun InputField(label: String, value: String, onValueChange: (String) -> Unit) {
         modifier = Modifier.fillMaxWidth()
     )
 }
+
 @Composable
 fun DropdownMenuField(
     label: String,
     items: List<String>,
-    selectedItem: String,
+    selectedItem: String?,
     onItemSelected: (String) -> Unit
 ) {
+    // Track expanded state of the dropdown menu
     var expanded by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
-    ExposedDropdownMenuBox(
+    // Outlined Text Field for dropdown
+    OutlinedTextField(
+        value = selectedItem ?: "",
+        onValueChange = {}, // No manual editing allowed for dropdown field
+        label = { Text(label) },
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .clickable { expanded = true },
+        readOnly = true, // Prevent keyboard input
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Dropdown Arrow",
+                modifier = Modifier.clickable { expanded = true }
+            )
+        }
+    )
+
+    // Dropdown Menu
+    DropdownMenu(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onDismissRequest = { expanded = false }
     ) {
-        TextField(
-            value = selectedItem,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Expand Menu")
+        items.forEach { item ->
+            DropdownMenuItem(
+                text = { Text(item) },
+                onClick = {
+                    onItemSelected(item) // Update the selected item
+                    expanded = false // Close dropdown
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            items.forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(item) },
-                    onClick = {
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
-            }
+            )
         }
     }
 }
+
 @Composable
 fun AttachmentField(onAttachClicked: () -> Unit) {
     Row(
