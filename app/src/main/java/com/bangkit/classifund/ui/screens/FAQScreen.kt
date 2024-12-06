@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,9 +17,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
-fun FaqPage() {
+fun FaqPage(
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,39 +38,31 @@ fun FaqPage() {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
         FaqItem(
             question = "What is Classifund?",
-            answer = "Classifund is a personal finance app that helps you manage your income and expenses."
+            answer = "Classifund is a personal finance app to manage income and expenses."
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         FaqItem(
             question = "How do I sign up?",
-            answer = "Visit the Sign Up page and enter your name, email, and password."
+            answer = "Visit the Sign Up page and enter your details."
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         FaqItem(
             question = "How do I add an expense?",
-            answer = "Go to the Home page, tap the 'Add' button under the navigation bar, and enter the expense details."
+            answer = "Go to Home, tap 'Add' under the nav bar, and enter the details."
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         FaqItem(
-            question = "How do I view my spending history?",
-            answer = "Your spending history is available on the Analytics page. You can view expenses by week or in total."
+            question = "How do I view my spending?",
+            answer = "Your history is on the Analytics page. View by week or total."
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         FaqItem(
             question = "Who can I contact for support?",
-            answer = "Email us at support@classifund.com for any questions or issues."
+            answer = "Email support@classifund.com for any issues."
         )
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

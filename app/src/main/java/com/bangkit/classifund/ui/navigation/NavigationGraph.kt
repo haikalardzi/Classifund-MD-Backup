@@ -15,9 +15,11 @@ import com.bangkit.classifund.ui.screens.ProfileScreen
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = "home") {
-        composable("home") { FaqPage() }
+        composable("home") { FaqPage(navController) }
         composable("add_transaction") { TransactionScreen() }
         composable("analytics") { HomeScreen() }
         composable("settings") { ProfileScreen(navController) }
+        composable("help") { ContactPage(navController) }
+        composable("faq") { FaqPage(navController) }
     }
 }

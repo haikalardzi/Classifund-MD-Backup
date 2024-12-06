@@ -135,7 +135,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun MenuListItem(
+fun MenuListItem(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit
