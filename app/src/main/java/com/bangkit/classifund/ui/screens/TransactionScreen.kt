@@ -2,8 +2,13 @@
 
 package com.bangkit.classifund.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -12,12 +17,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bangkit.classifund.ui.theme.BackgroundColor
+import com.bangkit.classifund.ui.theme.PrimaryColor
 import com.bangkit.classifund.ui.transaction.AddTransactionViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 @Composable
@@ -56,19 +71,9 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Wallet Dropdown
-        DropdownMenuField(
-            label = "Wallet",
-            items = listOf("Cash", "Bank", "Credit Card"),
-            selectedItem = wallet,
-            onItemSelected = { viewModel.updateWallet(it) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Description Field
         InputField(
-            label = "Description (Optional)",
+            label = "Description",
             value = description,
             onValueChange = { viewModel.updateDescription(it) }
         )
@@ -94,32 +99,65 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
 
 @Composable
 fun TransactionTypeSelector(selectedType: String, onTypeSelected: (String) -> Unit) {
-    Row {
-        Button(
-            onClick = { onTypeSelected("Expense") },
-            enabled = selectedType != "Expense",
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedType == "Expense") Color(0xFF00C853) else Color.LightGray
-            )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.LightGray)
+            .height(48.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        // Expense Button
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(
+                    if (selectedType == "Expense") Color(27, 191, 168, ) else Color.LightGray
+                )
+                .clip(RoundedCornerShape(24.dp))
+                .clickable { onTypeSelected("Expense") },
+            contentAlignment = Alignment.Center
         ) {
-            Text("Expense")
+            Text(
+                text = "Expense",
+                color = if (selectedType == "Expense") Color.White else Color(27, 191, 168, ),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Button(
-            onClick = { onTypeSelected("Income") },
-            enabled = selectedType != "Income",
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedType == "Income") Color(0xFF00C853) else Color.LightGray
-            )
+
+        // Income Button
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(
+                    if (selectedType == "Income") Color(27, 191, 168, ) else Color.LightGray
+                )
+                .clip(RoundedCornerShape(24.dp))
+                .clickable { onTypeSelected("Income") },
+            contentAlignment = Alignment.Center
         ) {
-            Text("Income")
+            Text(
+                text = "Income",
+                color = if (selectedType == "Income") Color.White else Color(27, 191, 168, ),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
 
+
+
 @Composable
 fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
+    val defaultDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
     val calendar = Calendar.getInstance()
+    var text by remember { mutableStateOf(TextFieldValue(defaultDate)) }
     val datePickerDialog = android.app.DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
@@ -131,15 +169,26 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     )
 
     TextField(
-        value = selectedDate,
-        onValueChange = {},
+        value = text,
+        onValueChange = { newValue -> text = newValue },
         readOnly = true,
         trailingIcon = {
             IconButton(onClick = { datePickerDialog.show() }) {
-                Icon(Icons.Default.DateRange, contentDescription = "Select Date")
+                Icon(Icons.Default.DateRange, contentDescription = "Select Date", tint = Color(27, 191, 168, ))
             }
         },
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTextColor = Color(27, 191, 168, ),
+            unfocusedTextColor = Color(27, 191, 168, )
+        ),
         modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp)),
+        textStyle = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
     )
 }
 
@@ -149,7 +198,18 @@ fun InputField(label: String, value: String, onValueChange: (String) -> Unit) {
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTextColor = Color(27, 191, 168, ),
+            unfocusedTextColor = Color(27, 191, 168, )
+        ),
         modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp)),
+        textStyle = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
     )
 }
 
@@ -165,14 +225,27 @@ fun DropdownMenuField(
     val focusRequester = remember { FocusRequester() }
 
     // Outlined Text Field for dropdown
-    OutlinedTextField(
+    TextField(
         value = selectedItem ?: "",
         onValueChange = {}, // No manual editing allowed for dropdown field
         label = { Text(label) },
         modifier = Modifier
             .focusRequester(focusRequester)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
             .clickable { expanded = true },
         readOnly = true, // Prevent keyboard input
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTextColor = Color(27, 191, 168, ),
+            unfocusedTextColor = Color(27, 191, 168, )
+        ),
+        textStyle = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        ),
+
         trailingIcon = {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
@@ -180,6 +253,7 @@ fun DropdownMenuField(
                 modifier = Modifier.clickable { expanded = true }
             )
         }
+
     )
 
     // Dropdown Menu
@@ -204,7 +278,7 @@ fun SaveButton(onSaveClicked: () -> Unit) {
     Button(
         onClick = onSaveClicked,
         modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853))
+        colors = ButtonDefaults.buttonColors(containerColor = Color(27, 191, 168, ))
     ) {
         Text("Save")
     }

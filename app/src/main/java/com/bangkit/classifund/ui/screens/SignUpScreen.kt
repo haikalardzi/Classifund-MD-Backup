@@ -63,6 +63,8 @@ fun SignUpScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
