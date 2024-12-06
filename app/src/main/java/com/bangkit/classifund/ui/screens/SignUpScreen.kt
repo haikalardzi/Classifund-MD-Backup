@@ -69,11 +69,6 @@ fun SignUpScreen(
             label = { Text("Name", color = PrimaryColor) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = OnPrimaryColor,
-                focusedBorderColor = PrimaryColor,
-                unfocusedBorderColor = Color.White
-            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -84,11 +79,6 @@ fun SignUpScreen(
             label = { Text("Email", color = PrimaryColor) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = OnPrimaryColor,
-                focusedBorderColor = PrimaryColor,
-                unfocusedBorderColor = Color.White
-            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -110,11 +100,6 @@ fun SignUpScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = OnPrimaryColor,
-                focusedBorderColor = PrimaryColor,
-                unfocusedBorderColor = Color.White
-            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))

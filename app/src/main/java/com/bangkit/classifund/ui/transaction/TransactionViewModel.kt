@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 class AddTransactionViewModel : ViewModel() {
 
@@ -56,7 +56,7 @@ class AddTransactionViewModel : ViewModel() {
 
     fun saveTransaction() {
         viewModelScope.launch {
-            val db = Firebase.firestore
+            val db = Firebase.firestore("classifund")
             val userId = FirebaseAuth.getInstance().currentUser?.uid
 
             if (userId.isNullOrEmpty()) {

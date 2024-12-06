@@ -64,11 +64,6 @@ fun LoginScreen(
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.White,
-                focusedBorderColor = PrimaryColor,
-                unfocusedBorderColor = Color(0xFFf4f4fb)
-            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -89,11 +84,6 @@ fun LoginScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.White,
-                focusedBorderColor = PrimaryColor,
-                unfocusedBorderColor = Color(0xFFf4f4fb)
-            )
         )
 
 //        OutlinedTextField(

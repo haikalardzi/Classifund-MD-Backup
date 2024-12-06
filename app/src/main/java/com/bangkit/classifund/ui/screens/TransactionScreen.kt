@@ -84,8 +84,6 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Attachment Field
-        AttachmentField(onAttachClicked = { /* Handle attachment */ })
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -201,24 +199,6 @@ fun DropdownMenuField(
     }
 }
 
-@Composable
-fun AttachmentField(onAttachClicked: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(Icons.Default.AddCircle, contentDescription = "Attach File")
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Add attachment",
-            modifier = Modifier
-                .clickable { onAttachClicked() }
-                .padding(8.dp)
-        )
-    }
-}
 @Composable
 fun SaveButton(onSaveClicked: () -> Unit) {
     Button(
