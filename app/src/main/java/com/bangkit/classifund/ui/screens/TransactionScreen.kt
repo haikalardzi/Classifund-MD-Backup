@@ -1,16 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.bangkit.classifund.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -25,11 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bangkit.classifund.ui.theme.BackgroundColor
-import com.bangkit.classifund.ui.theme.PrimaryColor
 import com.bangkit.classifund.ui.transaction.AddTransactionViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -40,7 +31,6 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
     val transactionType by viewModel.transactionType.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val category by viewModel.category.collectAsState()
-    val wallet by viewModel.wallet.collectAsState()
     val description by viewModel.description.collectAsState()
     val total by viewModel.total.collectAsState()
 
@@ -60,16 +50,17 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
         )
 
         Spacer(modifier = Modifier.height(8.dp))
+        if (transactionType == "Expense"){
+            // Category Dropdown
+            DropdownMenuField(
+                label = "Category",
+                items = listOf("Shopping", "Food", "Transport"),
+                selectedItem = category,
+                onItemSelected = { viewModel.updateCategory(it) }
+            )
 
-        // Category Dropdown
-        DropdownMenuField(
-            label = "Category",
-            items = listOf("Shopping", "Food", "Transport"),
-            selectedItem = category,
-            onItemSelected = { viewModel.updateCategory(it) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         // Description Field
         InputField(
@@ -157,7 +148,6 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
     val defaultDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
     val calendar = Calendar.getInstance()
-    var text by remember { mutableStateOf(TextFieldValue(defaultDate)) }
     val datePickerDialog = android.app.DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
@@ -169,8 +159,9 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     )
 
     TextField(
-        value = text,
-        onValueChange = { newValue -> text = newValue },
+        value = selectedDate,
+        label = { Text("Select Date") },
+        onValueChange = {},
         readOnly = true,
         trailingIcon = {
             IconButton(onClick = { datePickerDialog.show() }) {
