@@ -1,6 +1,7 @@
 package com.bangkit.classifund.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.bangkit.classifund.model.Transaction
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -42,6 +45,7 @@ data class WeeklyData(
 
 @Composable
 fun HomeScreen(
+    navController: NavController,
     viewModel: HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val transactions by viewModel.transactions.collectAsState()
@@ -113,7 +117,10 @@ fun HomeScreen(
         // Transaction List
         LazyColumn {
             items(transactions.filter { it.type.lowercase() == selectedType }) { transaction ->
-                TransactionItem(transaction)
+                TransactionItem(
+                    transaction = transaction,
+                    onTransactionClick = { navController.navigate("edit_transaction/${transaction.id}") }
+                )
                 Divider()
             }
         }
@@ -186,10 +193,11 @@ fun CircularSummary(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, onTransactionClick: (Transaction) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onTransactionClick(transaction) }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

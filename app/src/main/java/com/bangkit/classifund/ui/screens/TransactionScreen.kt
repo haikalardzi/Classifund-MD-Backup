@@ -1,30 +1,30 @@
 package com.bangkit.classifund.ui.screens
 
+import android.R
+import android.app.TimePickerDialog
+import android.widget.ArrayAdapter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bangkit.classifund.ui.transaction.AddTransactionViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
@@ -143,15 +143,30 @@ fun TransactionTypeSelector(selectedType: String, onTypeSelected: (String) -> Un
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
-    val defaultDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
     val calendar = Calendar.getInstance()
+
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, hourOfDay, minute ->
+            val formattedTime = String.format("%02d:%02d", hourOfDay, minute)
+            val currentDate = selectedDate.split(" ")[0]
+            onDateSelected("$currentDate $formattedTime")
+        },
+        calendar.get(Calendar.HOUR_OF_DAY),
+        calendar.get(Calendar.MINUTE),
+        true
+    )
+
     val datePickerDialog = android.app.DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
-            onDateSelected("$dayOfMonth/${month + 1}/$year")
+            val formattedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year)
+            timePickerDialog.show()
+            onDateSelected(formattedDate)
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -160,21 +175,22 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
 
     TextField(
         value = selectedDate,
-        label = { Text("Select Date") },
+        label = { Text("Select Date and Time") },
         onValueChange = {},
         readOnly = true,
         trailingIcon = {
             IconButton(onClick = { datePickerDialog.show() }) {
-                Icon(Icons.Default.DateRange, contentDescription = "Select Date", tint = Color(27, 191, 168, ))
+                Icon(Icons.Default.DateRange, contentDescription = "Select Date", tint = Color(27, 191, 168))
             }
         },
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color(27, 191, 168, ),
-            unfocusedTextColor = Color(27, 191, 168, )
+            focusedTextColor = Color(27, 191, 168),
+            unfocusedTextColor = Color(27, 191, 168)
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp)),
         textStyle = TextStyle(
             fontWeight = FontWeight.Bold,
@@ -208,62 +224,51 @@ fun InputField(label: String, value: String, onValueChange: (String) -> Unit) {
 fun DropdownMenuField(
     label: String,
     items: List<String>,
-    selectedItem: String?,
+    selectedItem: String,
     onItemSelected: (String) -> Unit
 ) {
-    // Track expanded state of the dropdown menu
-    var expanded by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(label)
 
-    // Outlined Text Field for dropdown
-    TextField(
-        value = selectedItem ?: "",
-        onValueChange = {}, // No manual editing allowed for dropdown field
-        label = { Text(label) },
-        modifier = Modifier
-            .focusRequester(focusRequester)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .clickable { expanded = true },
-        readOnly = true, // Prevent keyboard input
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color(27, 191, 168, ),
-            unfocusedTextColor = Color(27, 191, 168, )
-        ),
-        textStyle = TextStyle(
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
-        ),
-
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Dropdown Arrow",
-                modifier = Modifier.clickable { expanded = true }
-            )
-        }
-
-    )
-
-    // Dropdown Menu
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }
-    ) {
-        items.forEach { item ->
-            DropdownMenuItem(
-                text = { Text(item) },
-                onClick = {
-                    onItemSelected(item) // Update the selected item
-                    expanded = false // Close dropdown
-                }
-            )
-        }
+        Spinner(
+            items = items,
+            selectedItem = selectedItem,
+            onItemSelected = onItemSelected,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+        )
     }
 }
 
+@Composable
+fun Spinner(
+    items: List<String>,
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val spinner = remember {
+        android.widget.Spinner(context).apply {
+            adapter = ArrayAdapter(context, R.layout.simple_spinner_dropdown_item, items)
+            onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                    onItemSelected(items[position])
+                }
+                override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+            }
+        }
+    }
+
+    AndroidView(
+        factory = { spinner },
+        modifier = modifier,
+        update = { view ->
+            view.setSelection(items.indexOf(selectedItem))
+        }
+    )
+}
 @Composable
 fun SaveButton(onSaveClicked: () -> Unit) {
     Button(

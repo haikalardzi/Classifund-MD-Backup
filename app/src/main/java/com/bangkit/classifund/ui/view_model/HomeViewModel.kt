@@ -3,6 +3,7 @@ package com.bangkit.classifund.ui.screens
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bangkit.classifund.model.Transaction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -12,13 +13,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-data class Transaction(
-    val category: String = "",
-    val date: String = "",
-    val description: String = "",
-    val total: Long = 0L,
-    val type: String = ""
-)
 
 class HomeViewModel : ViewModel() {
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
@@ -56,12 +50,10 @@ class HomeViewModel : ViewModel() {
                     val transactionsList = snapshot?.documents?.mapNotNull { doc ->
                         try {
                             val dateTimestamp = doc.getTimestamp("date")
-                            val dateStr = if (dateTimestamp != null) {
-                                SimpleDateFormat("MMMM d, yyyy 'at' hh:mm:ss a z", Locale.US)
-                                    .format(dateTimestamp.toDate())
-                            } else ""
+                            val dateStr = dateTimestamp?.toDate()?.let { SimpleDateFormat("MMMM d, yyyy 'at' hh:mm:ss a z", Locale.US).format(it) } ?: ""
 
                             Transaction(
+                                id = doc.id,
                                 category = doc.getString("category") ?: "",
                                 date = dateStr,
                                 description = doc.getString("description") ?: "",
