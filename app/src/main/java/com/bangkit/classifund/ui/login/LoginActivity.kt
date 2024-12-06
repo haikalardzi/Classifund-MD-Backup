@@ -18,8 +18,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 
 class LoginActivity : ComponentActivity() {
 
@@ -99,44 +100,30 @@ class LoginActivity : ComponentActivity() {
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
 
-//                    if (userId != null) {
-//                        val db = FirebaseFirestore.getInstance()
-//
-//                        val userData = hashMapOf(
-//                            "name" to name,
-//                            "email" to email
-//                        )
-//
-//                        db.collection("users").document(userId).set(userData)
-//                            .addOnSuccessListener {
-//                                Log.d("SignUp", "User data saved successfully for User ID: $userId")
-//
-//                                db.collection("users").document(userId)
-//                                    .collection("transaction").document("default")
-//                                    .set(emptyMap<String, Any>())
-//                                    .addOnSuccessListener {
-//                                        Log.d("SignUp", "Default transaction collection created successfully for User ID: $userId")
-//                                        Toast.makeText(this, "Sign-Up Successful!", Toast.LENGTH_SHORT).show()
-//                                        startActivity(Intent(this, MainActivity::class.java))
-//                                        finish()
-//                                    }
-//                                    .addOnFailureListener { e ->
-//                                        Log.d("SignUp", "Failed to create default transaction collection: ${e.message}")
-//                                        Toast.makeText(this, "Failed to create default transaction: ${e.message}", Toast.LENGTH_SHORT).show()
-//                                    }
-//                            }
-//                            .addOnFailureListener { e ->
-//                                Log.d("SignUp", "Failed to save user data: ${e.message}")
-//                                Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
-//                            }
-//                    } else {
-//                        Log.d("SignUp", "User ID is null after successful registration.")
-//                        Toast.makeText(this, "Failed to retrieve user ID.", Toast.LENGTH_SHORT).show()
-//                    }
-//                } else {
-//                    val errorMessage = task.exception?.message ?: "Unknown error"
-//                    Log.d("SignUp", "User registration failed: $errorMessage")
-//                    Toast.makeText(this, "Sign-Up Failed: $errorMessage", Toast.LENGTH_SHORT).show()
+                    if (userId != null) {
+                        val db = Firebase.firestore("classifund")
+
+                        val userData = hashMapOf(
+                            "name" to name,
+                            "email" to email
+                        )
+
+                        db.collection("Users").document(userId).set(userData)
+                            .addOnSuccessListener {
+                                Log.d("PRINT", "User data saved successfully for User ID: $userId")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.d("SignUp", "Failed to save user data: ${e.message}")
+                                Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Log.d("SignUp", "User ID is null after successful registration.")
+                        Toast.makeText(this, "Failed to retrieve user ID.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val errorMessage = task.exception?.message ?: "Unknown error"
+                    Log.d("SignUp", "User registration failed: $errorMessage")
+                    Toast.makeText(this, "Sign-Up Failed: $errorMessage", Toast.LENGTH_SHORT).show()
                 }
             }
 
