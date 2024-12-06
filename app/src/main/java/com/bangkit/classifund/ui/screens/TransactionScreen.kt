@@ -54,7 +54,7 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
             // Category Dropdown
             DropdownMenuField(
                 label = "Category",
-                items = listOf("Shopping", "Food", "Transport"),
+                items = listOf("shopping", "food", "transportation", "health","other"),
                 selectedItem = category,
                 onItemSelected = { viewModel.updateCategory(it) }
             )
