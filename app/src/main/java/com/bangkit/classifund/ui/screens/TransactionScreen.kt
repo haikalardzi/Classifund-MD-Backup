@@ -50,17 +50,6 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        if (transactionType == "Expense"){
-            // Category Dropdown
-            DropdownMenuField(
-                label = "Category",
-                items = listOf("shopping", "food", "transportation", "health","other"),
-                selectedItem = category,
-                onItemSelected = { viewModel.updateCategory(it) }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-        }
 
         // Description Field
         InputField(
