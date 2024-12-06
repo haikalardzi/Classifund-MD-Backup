@@ -10,17 +10,36 @@ import com.bangkit.classifund.ui.screens.HomeScreen
 import com.bangkit.classifund.ui.screens.SettingsScreen
 import com.bangkit.classifund.ui.screens.TransactionScreen
 import com.bangkit.classifund.ui.screens.ContactPage
+import com.bangkit.classifund.ui.screens.DashboardScreen
 import com.bangkit.classifund.ui.screens.EditTransactionScreen
 import com.bangkit.classifund.ui.screens.FaqPage
+import com.bangkit.classifund.ui.screens.LoginScreen
 import com.bangkit.classifund.ui.screens.ProfileScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = "home") {
-        composable("home") { FaqPage(navController) }
+        composable("login") {
+            LoginScreen(
+                onNavigateToSignUp = { navController.navigate("signup") },
+                onLogin = { email, password -> /* handle login */ },
+                onGoogleSignIn = { /* handle Google sign in */ }
+            )
+        }
+        composable("home") { DashboardScreen(navController) }
         composable("add_transaction") { TransactionScreen() }
         composable("analytics") { HomeScreen(navController) }
-        composable("settings") { ProfileScreen(navController) }
+        composable("settings") {
+            ProfileScreen(
+                navController = navController,
+                onLogoutSuccess = {
+                    // Navigate to login and clear backstack
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
         composable("help") { ContactPage(navController) }
         composable("faq") { FaqPage(navController) }
         composable("edit_transaction/{transactionId}") { backStackEntry ->

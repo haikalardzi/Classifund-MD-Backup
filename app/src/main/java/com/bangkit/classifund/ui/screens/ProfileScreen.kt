@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 @Composable
 fun ProfileScreen(
     navController: NavController,
+    onLogoutSuccess: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
     val user by viewModel.user.collectAsState()
@@ -129,7 +130,10 @@ fun ProfileScreen(
         MenuListItem(
             icon = Icons.Default.Logout,
             title = "Logout",
-            onClick = { viewModel.logout() }
+            onClick = {
+                viewModel.logout()
+                onLogoutSuccess()
+            }
         )
     }
 }
