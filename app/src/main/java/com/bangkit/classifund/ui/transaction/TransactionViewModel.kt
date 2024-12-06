@@ -3,12 +3,22 @@ package com.bangkit.classifund.ui.transaction
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bangkit.classifund.model.ApiResponse
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.serialization.json.Json
 
 class AddTransactionViewModel : ViewModel() {
 
@@ -20,9 +30,6 @@ class AddTransactionViewModel : ViewModel() {
 
     private val _category = MutableStateFlow("")
     val category: StateFlow<String> = _category
-
-    private val _wallet = MutableStateFlow("")
-    val wallet: StateFlow<String> = _wallet
 
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
@@ -42,16 +49,29 @@ class AddTransactionViewModel : ViewModel() {
         _category.value = category
     }
 
-    fun updateWallet(wallet: String) {
-        _wallet.value = wallet
-    }
-
     fun updateDescription(desc: String) {
         _description.value = desc
     }
 
     fun updateTotal(amount: String) {
         _total.value = amount
+    }
+
+    private suspend fun requestClassification(desc: String): String {
+        val client = HttpClient(CIO)
+        try {
+            val response: HttpResponse  = client.post("https://mlmodel-560363491997.asia-southeast2.run.app/predict"){
+                contentType(ContentType.Application.Json)
+                setBody("""{"text": "$desc"}""")
+            }
+            val stringBody: String = response.body()
+            return stringBody
+        } catch (e: Exception) {
+            Log.e("Error", e.message.toString())
+            return ""
+        } finally {
+            client.close()
+        }
     }
 
     fun saveTransaction() {
@@ -63,36 +83,54 @@ class AddTransactionViewModel : ViewModel() {
                 Log.e("PRINT", "No authenticated user found")
                 return@launch
             }
+            if (_transactionType.value == "Expense") {
+                val result = requestClassification(_description.value)
+                // Build the transaction data
+                val transactionData = hashMapOf(
+                    "type" to _transactionType.value,
+                    "date" to _selectedDate.value,
+                    "category" to Json.decodeFromString<ApiResponse>(result).predicted_category,
+                    "description" to _description.value,
+                    "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
+                )
 
-            // Build the transaction data
-            val transactionData = hashMapOf(
-                "transactionType" to _transactionType.value,
-                "date" to _selectedDate.value,
-                "category" to _category.value,
-                "wallet" to _wallet.value,
-                "description" to _description.value,
-                "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
-            )
-            Log.d("PRINT", _transactionType.value)
-            Log.d("PRINT", _selectedDate.value)
-            Log.d("PRINT", _category.value)
-            Log.d("PRINT", _wallet.value)
-            Log.d("PRINT", _description.value)
-
-            try {
-                // Save the transaction under the user's collection
-                db.collection("Users")
-                    .document(userId)
-                    .collection("transactions")
-                    .add(transactionData)
-                    .addOnSuccessListener { documentReference ->
-                        Log.d("PRINT", "Transaction added with ID: ${documentReference.id}")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("PRINT", "Error adding transaction", e)
-                    }
-            } catch (e: Exception) {
-                Log.e("PRINT", "Unexpected error during Firestore operation", e)
+                try {
+                    // Save the transaction under the user's collection
+                    db.collection("Users")
+                        .document(userId)
+                        .collection("transactions")
+                        .add(transactionData)
+                        .addOnSuccessListener { documentReference ->
+                            Log.d("PRINT", "Transaction added with ID: ${documentReference.id}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("PRINT", "Error adding transaction", e)
+                        }
+                } catch (e: Exception) {
+                    Log.e("PRINT", "Unexpected error during Firestore operation", e)
+                }
+            } else {
+                val transactionData = hashMapOf(
+                    "type" to _transactionType.value,
+                    "date" to _selectedDate.value,
+                    "description" to _description.value,
+                    "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
+                )
+                try {
+                    // Save the transaction under the user's collection
+                    db.collection("Users")
+                        .document(userId)
+                        .collection("transactions")
+                        .add(transactionData)
+                        .addOnSuccessListener { documentReference ->
+                            Log.d("PRINT", "Transaction added with ID: ${documentReference.id}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("PRINT", "Error adding transaction", e)
+                        }
+                } catch (e: Exception) {
+                    Log.e("PRINT", "Unexpected error during Firestore operation", e)
+                }
             }
         }
     }

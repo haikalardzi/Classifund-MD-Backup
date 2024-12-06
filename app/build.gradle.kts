@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 android {
     namespace = "com.bangkit.classifund"
@@ -38,6 +39,7 @@ android {
         compose = true
     }
 }
+val ktor_version: String by project
 
 dependencies {
 
@@ -66,6 +68,10 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.vico.compose)
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.client.serialization)
 //    implementation(libs.google.services)
 
 }
