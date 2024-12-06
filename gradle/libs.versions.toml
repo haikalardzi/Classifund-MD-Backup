@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.2.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -14,6 +14,8 @@ google-services = "4.4.0"
 navigationCompose = "2.8.4"
 animationCoreLint = "1.8.0-alpha06"
 firebaseFirestoreKtx = "25.1.1"
+vico = "1.13.1"
+accompanist = "0.32.0"
 
 
 [libraries]
@@ -39,7 +41,8 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version = "1.5.0" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
-
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

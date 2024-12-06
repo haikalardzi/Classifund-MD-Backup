@@ -62,6 +62,11 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.play.services.auth)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.firebase.firestore)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.vico.compose)
+    implementation(libs.accompanist.flowlayout)
 //    implementation(libs.google.services)
 
 }

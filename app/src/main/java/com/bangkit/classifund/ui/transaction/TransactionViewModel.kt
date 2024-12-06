@@ -71,7 +71,7 @@ class AddTransactionViewModel : ViewModel() {
                 "category" to _category.value,
                 "wallet" to _wallet.value,
                 "description" to _description.value,
-                "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
+                "total" to _total.value.toDoubleOrNull()
             )
             Log.d("PRINT", _transactionType.value)
             Log.d("PRINT", _selectedDate.value)
