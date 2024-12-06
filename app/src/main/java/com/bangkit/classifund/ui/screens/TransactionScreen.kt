@@ -34,7 +34,7 @@ fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.vi
     val description by viewModel.description.collectAsState()
     val total by viewModel.total.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp, 24.dp, 16.dp, 16.dp)) {
         // Transaction Type Selector
         TransactionTypeSelector(
             selectedType = transactionType,
