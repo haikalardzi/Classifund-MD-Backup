@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import kotlinx.coroutines.tasks.await
+
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore("classifund")
-
     private val _user = MutableStateFlow<UserProfile>(UserProfile())
     val user = _user.asStateFlow()
 
@@ -26,33 +27,20 @@ class ProfileViewModel : ViewModel() {
             try {
                 val userId = auth.currentUser?.uid
                 if (userId != null) {
-                    val settings = FirebaseFirestoreSettings.Builder()
-                        .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
-                        .setPersistenceEnabled(true)
-                        .build()
-                    db.firestoreSettings = settings
-
-                    db.collection("Users")
+                    val snapshot = db.collection("Users")
                         .document(userId)
-                        .addSnapshotListener { snapshot, error ->
-                            if (error != null) {
-                                Log.e("ProfileViewModel", "Listen failed", error)
-                                setProfileFromAuth()
-                                return@addSnapshotListener
-                            }
+                        .get()
+                        .await()
 
-                            if (snapshot != null && snapshot.exists()) {
-                                val email = auth.currentUser?.email ?: ""
-                                val name = snapshot.getString("name") ?: ""
-
-                                Log.d("ProfileViewModel", "Raw data: ${snapshot.data}")
-
-                                _user.value = UserProfile(email = email, name = name)
-                            } else {
-                                Log.d("ProfileViewModel", "No existing profile found, creating new profile")
-                                setProfileFromAuth()
-                            }
-                        }
+                    if (snapshot.exists()) {
+                        val email = auth.currentUser?.email ?: ""
+                        val name = snapshot.getString("name") ?: ""
+                        Log.d("ProfileViewModel", "Raw data: ${snapshot.data}")
+                        _user.value = UserProfile(email = email, name = name)
+                    } else {
+                        Log.d("ProfileViewModel", "No existing profile found, creating new profile")
+                        setProfileFromAuth()
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Error in loadUserProfile", e)
@@ -62,31 +50,49 @@ class ProfileViewModel : ViewModel() {
     }
 
     private fun setProfileFromAuth() {
-        val email = auth.currentUser?.email ?: ""
-        val name = auth.currentUser?.displayName ?: email.substringBefore("@")
+        viewModelScope.launch {
+            try {
+                val email = auth.currentUser?.email ?: ""
+                val name = auth.currentUser?.displayName ?: email.substringBefore("@")
+                val userProfile = UserProfile(email = email, name = name)
 
-        val userProfile = UserProfile(email = email, name = name)
-        _user.value = userProfile
+                auth.currentUser?.uid?.let { userId ->
+                    db.collection("Users")
+                        .document(userId)
+                        .set(userProfile)
+                        .await()
 
-        auth.currentUser?.uid?.let { userId ->
-            db.collection("Users")
-                .document(userId)
-                .set(userProfile)
+                    _user.value = userProfile
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error setting profile from auth", e)
+            }
         }
     }
+
     fun updateProfile(name: String) {
         viewModelScope.launch {
-            val userId = auth.currentUser?.uid
-            if (userId != null) {
-                db.collection("Users")
-                    .document(userId)
-                    .update("name", name)
+            try {
+                val userId = auth.currentUser?.uid
+                if (userId != null) {
+                    val updates = hashMapOf<String, Any>("name" to name)
+
+                    db.collection("Users")
+                        .document(userId)
+                        .update(updates)
+                        .await()
+
+                    _user.value = _user.value.copy(name = name)
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error updating profile", e)
             }
         }
     }
 
     fun logout() {
         auth.signOut()
+
     }
 }
 
