@@ -40,11 +40,12 @@ class EditTransactionViewModel : ViewModel() {
 
                 if (snapshot.exists()) {
                     val timestamp = snapshot.getTimestamp("date")
-                    val dateStr = timestamp?.toDate()?.toString() ?: ""
+                    val dateStr = timestamp?.toDate()?: ""
+                    val dateFormat = SimpleDateFormat("d/M/yyyy", Locale.US).format(dateStr)
 
                     val transaction = Transaction(
                         id = transactionId,
-                        date = dateStr,
+                        date = dateFormat,
                         category = snapshot.getString("category") ?: "",
                         type = snapshot.getString("type") ?: "",
                         description = snapshot.getString("description") ?: "",
@@ -71,13 +72,12 @@ class EditTransactionViewModel : ViewModel() {
                 }
 
                 // Parse the date string to Timestamp
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                val date = dateFormat.parse(transaction.date)
-                val timestamp = date?.let { Timestamp(it) }
+                val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.US)
+                val parsedDate = dateFormat.parse(transaction.date) // Converts to java.util.
 
                 val transactionData = hashMapOf(
                     "category" to transaction.category,
-                    "date" to timestamp,
+                    "date" to Timestamp(parsedDate!!),
                     "description" to transaction.description,
                     "total" to transaction.total,
                     "type" to transaction.type

@@ -10,15 +10,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AddTransactionViewModel : ViewModel() {
 
@@ -45,10 +49,6 @@ class AddTransactionViewModel : ViewModel() {
         _selectedDate.value = date
     }
 
-    fun updateCategory(category: String) {
-        _category.value = category
-    }
-
     fun updateDescription(desc: String) {
         _description.value = desc
     }
@@ -58,7 +58,11 @@ class AddTransactionViewModel : ViewModel() {
     }
 
     private suspend fun requestClassification(desc: String): String {
-        val client = HttpClient(CIO)
+        val client = HttpClient(CIO) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000 // 30 seconds
+            }
+        }
         try {
             val response: HttpResponse  = client.post("https://mlmodel-560363491997.asia-southeast2.run.app/predict"){
                 contentType(ContentType.Application.Json)
@@ -75,6 +79,7 @@ class AddTransactionViewModel : ViewModel() {
     }
 
     fun saveTransaction() {
+
         viewModelScope.launch {
             val db = Firebase.firestore("classifund")
             val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -83,12 +88,17 @@ class AddTransactionViewModel : ViewModel() {
                 Log.e("PRINT", "No authenticated user found")
                 return@launch
             }
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+            val parsedDate = dateFormat.parse(_selectedDate.value) // Converts to java.util.Date
+
             if (_transactionType.value == "Expense") {
                 val result = requestClassification(_description.value)
+
+
                 // Build the transaction data
                 val transactionData = hashMapOf(
                     "type" to _transactionType.value,
-                    "date" to _selectedDate.value,
+                    "date" to Timestamp(parsedDate!!),
                     "category" to Json.decodeFromString<ApiResponse>(result).predicted_category,
                     "description" to _description.value,
                     "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
@@ -112,7 +122,8 @@ class AddTransactionViewModel : ViewModel() {
             } else {
                 val transactionData = hashMapOf(
                     "type" to _transactionType.value,
-                    "date" to _selectedDate.value,
+                    "category" to "Income",
+                    "date" to Timestamp(parsedDate!!),
                     "description" to _description.value,
                     "total" to _total.value.toDoubleOrNull() // Fallback to 0.0 if invalid
                 )
@@ -129,7 +140,8 @@ class AddTransactionViewModel : ViewModel() {
                             Log.e("PRINT", "Error adding transaction", e)
                         }
                 } catch (e: Exception) {
-                    Log.e("PRINT", "Unexpected error during Firestore operation", e)
+                    Log.e("PRINT", "Error adding transaction", e)
+
                 }
             }
         }

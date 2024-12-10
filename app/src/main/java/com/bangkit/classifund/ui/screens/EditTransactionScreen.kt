@@ -29,11 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.bangkit.classifund.model.Transaction
 import com.bangkit.classifund.ui.transaction.EditTransactionViewModel
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 @Composable
 fun EditTransactionScreen(
     navController: NavController,
@@ -85,14 +82,14 @@ fun EditTransactionScreen(
             if (type == "Expense") {
                 DropdownMenuField(
                     label = "Category",
-                    items = listOf("shopping", "food", "transportation", "health", "other"),
+                    items = listOf("Shopping", "Food", "Transportation", "Health", "Other"),
                     selectedItem = category,
                     onItemSelected = { category = it }
                 )
             } else {
                 DropdownMenuField(
                     label = "Category",
-                    items = listOf("salary", "investment", "other"),
+                    items = listOf("Salary", "Investment", "Other"),
                     selectedItem = category,
                     onItemSelected = { category = it }
                 )

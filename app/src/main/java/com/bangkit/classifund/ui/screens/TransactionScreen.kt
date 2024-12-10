@@ -2,7 +2,9 @@ package com.bangkit.classifund.ui.screens
 
 import android.R
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,12 +27,16 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.firebase.Timestamp
+import com.patrykandpatrick.vico.core.extension.setFieldValue
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Composable
 fun TransactionScreen(viewModel: AddTransactionViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val transactionType by viewModel.transactionType.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
-    val category by viewModel.category.collectAsState()
+//    val category by viewModel.category.collectAsState()
     val description by viewModel.description.collectAsState()
     val total by viewModel.total.collectAsState()
 
@@ -138,24 +144,11 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
-    val timePickerDialog = TimePickerDialog(
-        context,
-        { _, hourOfDay, minute ->
-            val formattedTime = String.format("%02d:%02d", hourOfDay, minute)
-            val currentDate = selectedDate.split(" ")[0]
-            onDateSelected("$currentDate $formattedTime")
-        },
-        calendar.get(Calendar.HOUR_OF_DAY),
-        calendar.get(Calendar.MINUTE),
-        true
-    )
-
     val datePickerDialog = android.app.DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
-            val formattedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year)
-            timePickerDialog.show()
-            onDateSelected(formattedDate)
+            val result = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year)
+            onDateSelected(result)
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -164,7 +157,7 @@ fun DatePickerField(selectedDate: String, onDateSelected: (String) -> Unit) {
 
     TextField(
         value = selectedDate,
-        label = { Text("Select Date and Time") },
+        label = { Text("Select Date") },
         onValueChange = {},
         readOnly = true,
         trailingIcon = {
@@ -260,6 +253,8 @@ fun Spinner(
 }
 @Composable
 fun SaveButton(onSaveClicked: () -> Unit) {
+    val context = LocalContext.current  // Get the context for Toast
+
     Button(
         onClick = onSaveClicked,
         modifier = Modifier.fillMaxWidth(),

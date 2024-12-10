@@ -88,7 +88,7 @@ fun DashboardScreen(
             items(filteredTransactions) { transaction ->
                 TransactionItem(
                     transaction = transaction,
-                    onClick = { navController.navigate("editTransaction/${transaction.id}") }
+                    onClick = { navController.navigate("edit_transaction/${transaction.id}") }
                 )
             }
         }
