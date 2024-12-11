@@ -156,12 +156,53 @@ class LoginActivity : ComponentActivity() {
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    val user = firebaseAuth.currentUser
+                    val userId = user?.uid
+                    val userName = user?.displayName ?: ""
+                    val userEmail = user?.email ?: ""
+                    Log.d("GoogleAuth", "UID: $userId, Name: '$userName', Email: '$userEmail'")
                     Toast.makeText(this, "Google Sign-In Successful!", Toast.LENGTH_SHORT).show()
+                    if (userId != null) {
+                        val db = Firebase.firestore("classifund")
+                        val userDocRef = db.collection("Users").document(userId)
+                        userDocRef.get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    Log.d("SignUp", "User already exists in Firestore. Skipping save.")
+                                } else {
+                                    // Add user data if not already in Firestore
+                                    val userData = hashMapOf(
+                                        "name" to userName,
+                                        "email" to userEmail
+                                    )
+                                    userDocRef.set(userData)
+                                        .addOnSuccessListener {
+                                            Log.d("SignUp", "Google user data saved successfully for User ID: $userId")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.d("SignUp", "Failed to save Google user data: ${e.message}")
+                                            Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.d("SignUp", "Error checking Firestore: ${e.message}")
+                                Toast.makeText(this, "Error checking user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Log.d("SignUp", "User ID is null after Google sign-in.")
+                        Toast.makeText(this, "Failed to retrieve user ID.", Toast.LENGTH_SHORT).show()
+                    }
+
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(this, "Google Sign-In Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    val errorMessage = task.exception?.message ?: "Unknown error"
+                    Log.d("SignUp", "Google Sign-In Failed: $errorMessage")
+                    Toast.makeText(this, "Google Sign-In Failed: $errorMessage", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
+
 }
